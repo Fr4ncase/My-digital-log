@@ -3,7 +3,10 @@ import { createBrowserRouter } from 'react-router';
 
 // Pages
 import { Login } from '@/pages/auth/Login';
-import { Signup } from '@/pages/auth/Signup'
+import { Signup } from '@/pages/auth/Signup';
+
+// Actions
+import signupAction from '@/routes/actions/auth/signup';
 
 const router = createBrowserRouter([
   {
@@ -13,6 +16,7 @@ const router = createBrowserRouter([
   {
     path: '/signup',
     Component: Signup,
+    action: signupAction,
   },
   {
     path: '/refresh-Token',

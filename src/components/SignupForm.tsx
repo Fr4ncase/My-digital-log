@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 
 // Custom modules
 import { cn } from '@/lib/utils';
+import { AUTH_MESSAGES_ES } from '@/messages';
 
 // Components
 import { Button } from '@/components/ui/button';
@@ -36,10 +37,10 @@ import type {
   ErrorResponse,
   ValidationError,
 } from '@/types';
-type SignupFieldName = 'email' | 'password' | 'role';
+type SignupField = 'email' | 'password' | 'role';
 
 // Constants
-const LOGIN_FORM = {
+const SIGNUP_FORM = {
   title: 'Crea una cuenta', // Create an account
   description: 'Introduce tu email abajo para crear una cuenta', // Enter your email below to create an account
   footerText: 'Ya tienes una cuenta?', // Already have an account.
@@ -66,7 +67,7 @@ export const SignupForm = ({
 }: React.ComponentProps<'div'>) => {
   const navigate = useNavigate();
   const fetcher = useFetcher();
-  const SignupResponse = fetcher.data as ActionResponse<AuthResponse>;
+  const signupResponse = fetcher.data as ActionResponse<AuthResponse>;
 
   const isLoading = fetcher.state !== 'idle';
 
@@ -79,8 +80,53 @@ export const SignupForm = ({
     },
   });
 
+  useEffect(() => {
+    if (!signupResponse) return;
+
+    if (signupResponse.ok) {
+      navigate('/', { viewTransition: true });
+      return;
+    }
+
+    if (!signupResponse.err) return;
+
+    if (signupResponse.err.code === 'AuthorizationError') {
+      const authorizationError = signupResponse.err as ErrorResponse;
+      const translated =
+        AUTH_MESSAGES_ES[authorizationError.message] ??
+        authorizationError.message;
+      toast.error(translated, {
+        position: 'top-center',
+      });
+    }
+
+    if (signupResponse.err.code === 'ValidationError') {
+      const validationErrors = signupResponse.err as ValidationError;
+      Object.entries(validationErrors.errors).forEach((value) => {
+        const [, validationError] = value;
+        const signupField = validationError.path as SignupField;
+        const translated =
+          AUTH_MESSAGES_ES[validationError.msg] ?? validationError.msg;
+
+        form.setError(
+          signupField,
+          {
+            type: 'custom',
+            message: translated,
+          },
+          { shouldFocus: true },
+        );
+      });
+    }
+  }, [signupResponse]);
+
+  // Handle form submission ====================>-v
   const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    await fetcher.submit(values, {
+      action: '/signup',
+      method: 'post',
+      encType: 'application/json',
+    });
   }, []);
 
   return (
@@ -97,9 +143,11 @@ export const SignupForm = ({
             >
               <div className='flex flex-col gap-6'>
                 <div className='flex flex-col items-center text-center'>
-                  <h1 className='text-2xl font-semibold'>{LOGIN_FORM.title}</h1>
+                  <h1 className='text-2xl font-semibold'>
+                    {SIGNUP_FORM.title}
+                  </h1>
                   <p className='text-muted-foreground px-6'>
-                    {LOGIN_FORM.description}
+                    {SIGNUP_FORM.description}
                   </p>
                 </div>
 
@@ -182,7 +230,7 @@ export const SignupForm = ({
               </div>
 
               <div className='mt-4 text-center text-sm'>
-                {LOGIN_FORM.footerText}{' '}
+                {SIGNUP_FORM.footerText}{' '}
                 <Link
                   to={'/login'}
                   className='underline underline-offset-4 hover:text-primary'
