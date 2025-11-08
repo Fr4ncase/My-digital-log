@@ -7,6 +7,7 @@ import { useCallback, useEffect } from 'react';
 
 // Custom modules
 import { cn } from '@/lib/utils';
+import { AUTH_MESSAGES_ES } from '@/messages';
 
 // Components
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ import { LoaderCircleIcon } from 'lucide-react';
 
 // Types
 import type { ActionResponse, AuthResponse, ValidationError } from '@/types';
-type LoginFieldName = 'email' | 'password';
+type LoginField = 'email' | 'password';
 
 // Constants
 const LOGIN_FORM = {
@@ -69,8 +70,55 @@ export const LoginForm = ({
     },
   });
 
+  useEffect(() => {
+    if (!loginResponse) return;
+
+    if (loginResponse.ok) {
+      navigate('/', { viewTransition: true });
+      return;
+    }
+
+    if (!loginResponse.err) return;
+
+    if (loginResponse.err.code === 'ValidationError') {
+      const validationErrors = loginResponse.err as ValidationError;
+      Object.entries(validationErrors.errors).forEach(
+        ([field, errorDetail]) => {
+          const translated =
+            AUTH_MESSAGES_ES[errorDetail.msg] ?? errorDetail.msg;
+
+          if (field === 'form' || errorDetail.msg === 'CREDENTIALS_INVALID') {
+            form.setError(
+              'password',
+              {
+                type: 'custom',
+                message: translated,
+              },
+              { shouldFocus: true },
+            );
+          } else {
+            const loginField = field as LoginField;
+
+            form.setError(
+              loginField,
+              {
+                type: 'custom',
+                message: translated,
+              },
+              { shouldFocus: true },
+            );
+          }
+        },
+      );
+    }
+  }, [loginResponse]);
+
   const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    await fetcher.submit(values, {
+      action: '/login',
+      method: 'post',
+      encType: 'application/json',
+    });
   }, []);
 
   return (

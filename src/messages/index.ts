@@ -13,4 +13,6 @@ export const AUTH_MESSAGES_ES: Record<string, string> = {
 
   REFRESH_TOKEN_REQUIRED: 'El token de sesión es obligatorio',
   REFRESH_TOKEN_INVALID: 'Token de sesión inválido',
+
+  CREDENTIALS_INVALID: 'El correo o la contraseña son incorrectos',
 };
