@@ -9,6 +9,9 @@ import { Signup } from '@/pages/auth/Signup';
 import signupAction from '@/routes/actions/auth/signup';
 import loginAction from '@/routes/actions/auth/login';
 
+// Loaders
+import refreshTokenLoader from '@/routes/loaders/refreshToken';
+
 const router = createBrowserRouter([
   {
     path: '/login',
@@ -22,6 +25,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/refresh-Token',
+    loader: refreshTokenLoader,
   },
   {
     path: '/',
