@@ -4,10 +4,12 @@ import { createBrowserRouter } from 'react-router';
 // Pages
 import { Login } from '@/pages/auth/Login';
 import { Signup } from '@/pages/auth/Signup';
+import { RootLayout } from '@/components/layouts/Root';
 
 // Actions
 import signupAction from '@/routes/actions/auth/signup';
 import loginAction from '@/routes/actions/auth/login';
+import settingsAction from '@/routes/actions/user/settings';
 
 // Loaders
 import refreshTokenLoader from '@/routes/loaders/refreshToken';
@@ -29,6 +31,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/',
+    Component: RootLayout,
     children: [
       {
         index: true,
@@ -66,6 +69,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/settings',
+    action: settingsAction,
   },
 ]);
 
