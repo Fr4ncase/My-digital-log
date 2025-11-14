@@ -4,6 +4,7 @@ import { Outlet } from 'react-router';
 // Components
 import { Loading } from '@/components/Loading';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export const RootLayout = () => {
   return (
@@ -11,6 +12,12 @@ export const RootLayout = () => {
       <Loading className='z-40' />
 
       <Header />
+
+      <main className='grow flex flex-col'>
+        <Outlet />
+      </main>
+
+      <Footer />
     </div>
   );
 };
